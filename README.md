@@ -14,7 +14,7 @@ The REST API to the example app is described below.
 
 ### Request
 
-`GET /photos/`
+`GET /photos`
 
 ### Response
 
@@ -29,7 +29,7 @@ The REST API to the example app is described below.
 
 ### Request
 
-`POST /photos/`
+`POST /photos`
 
 ### Response
 
