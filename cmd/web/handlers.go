@@ -29,18 +29,25 @@ func Contains(a []string, x string) bool {
 	}
 	return false
 }
+func deleteFile(file string) {
+	os.Remove(file)
+}
 
 func getPhotos(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	db, err := sql.Open("sqlite3", "./pkg/data.db")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		d := map[string]string{"status": err.Error()}
+		mapVar2, _ := json.Marshal(d)
+		http.Error(w, string(mapVar2), http.StatusInternalServerError)
 		return
 	}
 	defer db.Close()
 	rows, err := db.Query("select * from Photos")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		d := map[string]string{"status": err.Error()}
+		mapVar2, _ := json.Marshal(d)
+		http.Error(w, string(mapVar2), http.StatusInternalServerError)
 		return
 	}
 	defer rows.Close()
@@ -63,7 +70,9 @@ func getPhoto(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	db, err := sql.Open("sqlite3", "./pkg/data.db")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		d := map[string]string{"status": err.Error()}
+		mapVar2, _ := json.Marshal(d)
+		http.Error(w, string(mapVar2), http.StatusInternalServerError)
 		return
 	}
 	defer db.Close()
@@ -73,16 +82,21 @@ func getPhoto(w http.ResponseWriter, r *http.Request) {
 	p := Photo{}
 	err = row.Scan(&p.ID, &p.Image, &p.Preview)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		d := map[string]string{"status": err.Error()}
+		mapVar2, _ := json.Marshal(d)
+		http.Error(w, string(mapVar2), http.StatusInternalServerError)
 		return
 	}
 	json.NewEncoder(w).Encode(p)
 }
 
 func uploadPhoto(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	file, fileHeader, err := r.FormFile("image")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		d := map[string]string{"status": err.Error()}
+		mapVar2, _ := json.Marshal(d)
+		http.Error(w, string(mapVar2), http.StatusBadRequest)
 		return
 	}
 
@@ -90,12 +104,16 @@ func uploadPhoto(w http.ResponseWriter, r *http.Request) {
 
 	err = os.MkdirAll("./ui/static/img/uploads", os.ModePerm)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		d := map[string]string{"status": err.Error()}
+		mapVar2, _ := json.Marshal(d)
+		http.Error(w, string(mapVar2), http.StatusInternalServerError)
 		return
 	}
 	err = os.MkdirAll("./ui/static/img/previews", os.ModePerm)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		d := map[string]string{"status": err.Error()}
+		mapVar2, _ := json.Marshal(d)
+		http.Error(w, string(mapVar2), http.StatusInternalServerError)
 		return
 	}
 
@@ -107,14 +125,18 @@ func uploadPhoto(w http.ResponseWriter, r *http.Request) {
 	if Contains(image_types, fileType) {
 		dst, err := os.Create(fmt.Sprintf("./ui/static/img/uploads/%d%s", fileName, fileType))
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			d := map[string]string{"status": err.Error()}
+			mapVar2, _ := json.Marshal(d)
+			http.Error(w, string(mapVar2), http.StatusInternalServerError)
 			return
 		}
 		defer dst.Close()
 
 		_, err = io.Copy(dst, file)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			d := map[string]string{"status": err.Error()}
+			mapVar2, _ := json.Marshal(d)
+			http.Error(w, string(mapVar2), http.StatusInternalServerError)
 			return
 		}
 		oldImg, err := imaging.Open(fmt.Sprintf("./ui/static/img/uploads/%d%s", fileName, fileType))
@@ -129,7 +151,9 @@ func uploadPhoto(w http.ResponseWriter, r *http.Request) {
 
 		db, err := sql.Open("sqlite3", "./pkg/data.db")
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			d := map[string]string{"status": err.Error()}
+			mapVar2, _ := json.Marshal(d)
+			http.Error(w, string(mapVar2), http.StatusInternalServerError)
 			return
 		}
 		defer db.Close()
@@ -137,13 +161,20 @@ func uploadPhoto(w http.ResponseWriter, r *http.Request) {
 			fileNameApi, fileNamePreviewApi)
 		log.Println(photo)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			d := map[string]string{"status": err.Error()}
+			mapVar2, _ := json.Marshal(d)
+			http.Error(w, string(mapVar2), http.StatusInternalServerError)
 			return
 		}
+		d := map[string]string{"status": "upload successful"}
+		mapVar2, _ := json.Marshal(d)
 
-		fmt.Fprintf(w, "Upload successful")
+		fmt.Fprintf(w, string(mapVar2))
 	} else {
-		http.Error(w, "Wrong file format", http.StatusInternalServerError)
+		d := map[string]string{"status": "wrong file format"}
+		mapVar2, _ := json.Marshal(d)
+		w.Header().Set("Content-Type", "application/json")
+		http.Error(w, string(mapVar2), http.StatusInternalServerError)
 		return
 	}
 }
@@ -154,16 +185,33 @@ func deletePhoto(w http.ResponseWriter, r *http.Request) {
 	id := params["id"]
 	db, err := sql.Open("sqlite3", "./pkg/data.db")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		d := map[string]string{"status": err.Error()}
+		mapVar2, _ := json.Marshal(d)
+		http.Error(w, string(mapVar2), http.StatusInternalServerError)
 		return
 	}
 	defer db.Close()
 
+	row := db.QueryRow("select * from Photos where id = $1", id)
+	p := Photo{}
+	err = row.Scan(&p.ID, &p.Image, &p.Preview)
+	if err != nil {
+		d := map[string]string{"status": err.Error()}
+		mapVar2, _ := json.Marshal(d)
+		http.Error(w, string(mapVar2), http.StatusInternalServerError)
+		return
+	}
+	deleteFile(p.Image)
+	deleteFile(p.Preview)
 	result, err := db.Exec("delete from photos where id = $1", id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		d := map[string]string{"status": err.Error()}
+		mapVar2, _ := json.Marshal(d)
+		http.Error(w, string(mapVar2), http.StatusInternalServerError)
 		return
 	}
 	log.Println(result)
-	fmt.Fprintf(w, "Delete successful")
+	d := map[string]string{"status": "delete successful"}
+	mapVar2, _ := json.Marshal(d)
+	fmt.Fprintf(w, string(mapVar2))
 }
