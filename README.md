@@ -35,9 +35,10 @@ The REST API to the example app is described below.
 
     HTTP/1.1 200 OK 
     Date: Sat, 03 Jul 2021 14:33:54 GMT
-    Content-Type: text/plain; charset=utf-8
+    Content-Type: application/json
     Content-Length: 36
 
+    {"status":"upload successful"}
 
 ## Get a specific Photo
 
@@ -65,4 +66,7 @@ The REST API to the example app is described below.
 
     HTTP/1.1 200 OK
     Date: Sat, 03 Jul 2021 14:40:57 GMT
+    Content-Type: application/json
     Content-Length: 17
+    
+    {"status":"delete successful"}
