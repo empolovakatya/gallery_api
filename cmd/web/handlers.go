@@ -118,7 +118,7 @@ func uploadPhoto(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		oldImg, err := imaging.Open(fmt.Sprintf("./ui/static/img/uploads/%d%s", fileName, fileType))
-		fileNameApi := "./ui/static/img/uploads/" + strconv.FormatInt(fileName, 10) + ".jpg"
+		fileNameApi := "./ui/static/img/uploads/" + strconv.FormatInt(fileName, 10) + fileType
 		imagePreview := imaging.Resize(oldImg, 128, 0, imaging.Lanczos)
 
 		err = imaging.Save(imagePreview, fmt.Sprintf("./ui/static/img/previews/%d_preview.jpg", fileName))
