@@ -60,7 +60,7 @@ The REST API to the example app is described below.
 
 ### Request
 
-`DELETE /photo/id`
+`DELETE /photos/id`
 
 ### Response
 
