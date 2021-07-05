@@ -1,1 +1,1 @@
-web: bin/gallery_api
+web: gallery_api
